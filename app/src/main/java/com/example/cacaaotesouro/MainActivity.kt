@@ -3,23 +3,27 @@ package com.example.cacaaotesouro
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.cacaaotesouro.ui.theme.CacaAoTesouroTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,55 +32,140 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             NavHost(
-                navController = navController, startDestination = "idTela01"
+                navController = navController,
+                startDestination = "TelaInicial"
             ) {
-                composable("idTela01"){
-                    Tela(
-                        "Home",
-                        clickB1 = {navController.navigate("idTela02")},
-                        clickB2 = {navController.navigate("idTela03")}
+                composable("TelaInicial") {
+                    TelaInicial(
+                        clickButtonStart = { navController.navigate("TelaDica01") }
                     )
                 }
-                composable("idTela02"){
-                    Tela(
-                        "Tela 02",
-                        clickB1 = {navController.navigate("idTela01")},
-                        clickB2 = {navController.navigate("idTela03")}
+                composable("TelaDica01") {
+                    TelaDica(
+                        name = "Dica 01",
+                        pergunta = "O mais famoso vem da vaca",
+                        clickProxPista = { navController.navigate("TelaDica02") },
+                        clickVoltar = { navController.navigate("TelaInicial") },
+                        navController = navController
                     )
                 }
-                composable("idTela03"){
-                    Tela(
-                        "Tela 03",
-                        clickB1 = {navController.navigate("idTela01")},
-                        clickB2 = {navController.navigate("idTela02")}
+                composable("TelaDica02") {
+                    TelaDica(
+                        name = "Dica 02",
+                        pergunta = "Também pode se originar de outros animais",
+                        clickProxPista = { navController.navigate("TelaDica03") },
+                        clickVoltar = { navController.navigate("TelaDica01") },
+                        navController = navController
                     )
+                }
+                composable("TelaDica03") {
+                    TelaDica(
+                        name = "Dica 03",
+                        pergunta = "É muito apreciado junto com vinho",
+                        clickVoltar = { navController.navigate("TelaDica02") },
+                        navController = navController
+                    )
+                }
+                composable("TelaFinal") {
+                    TelaFinal()
+                }
+                composable("TelaErro") {
+                    TelaErro()
                 }
             }
         }
     }
 }
 
+@Composable
+fun TelaDica(
+    name: String,
+    pergunta: String,
+    clickProxPista: (() -> Unit)? = null,
+    clickVoltar: () -> Unit,
+    navController: NavController
+) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = name)
+        Text(text = pergunta)
+
+        var resposta by remember { mutableStateOf("") }
+        TextField(
+            value = resposta,
+            onValueChange = { resposta = it },
+            modifier = Modifier.padding(16.dp)
+        )
+
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(onClick = {
+                if (resposta.lowercase() == "queijo") {
+                    navController.navigate("TelaFinal")
+                } else {
+                    navController.navigate("TelaErro")
+                }
+            }) {
+                Text("Inserir resposta")
+            }
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(
+                enabled = clickProxPista != null,
+                onClick = { clickProxPista?.invoke() }
+            ) {
+                Text("Próxima pista")
+            }
+
+            Button(onClick = clickVoltar) {
+                Text("Voltar")
+            }
+        }
+    }
+}
 
 @Composable
-fun Tela(name: String,
-         clickB1: () -> Unit,
-         clickB2: () -> Unit
-)
-{
-    Column(Modifier.fillMaxSize(),
+fun TelaInicial(clickButtonStart: () -> Unit) {
+    Column(
+        Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center)
-    {
-        Text(text = name)
-        Button(onClick = {
-            clickB1()
-        }) {
-            Text(text = "B1")
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Iniciar caça ao tesouro")
+        Button(onClick = clickButtonStart) {
+            Text(text = "Começar")
         }
-        Button(onClick = {
-            clickB2()
-        }) {
-            Text(text = "B2")
-        }
+    }
+}
+
+@Composable
+fun TelaErro() {
+    Column(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Resposta incorreta. Tente novamente.")
+    }
+}
+
+@Composable
+fun TelaFinal() {
+    Column(
+        Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Parabéns! Você ganhou.")
     }
 }
