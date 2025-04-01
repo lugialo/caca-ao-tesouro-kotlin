@@ -1,5 +1,6 @@
 package com.example.cacaaotesouro
 
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,6 +25,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil3.ImageLoader
+import coil3.Uri
+import coil3.PlatformContext
+import coil3.annotation.ExperimentalCoilApi
+import coil3.gif.AnimatedImageDecoder
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -166,6 +172,15 @@ fun TelaFinal() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        GifImage(drawableResId = R.drawable.gatojoia)
         Text(text = "Parabéns! Você ganhou.")
     }
+}
+
+@Composable
+fun GifImage(drawableResId: Int) {
+    coil3.compose.AsyncImage(
+        model = drawableResId,
+        contentDescription = "gif"
+    )
 }
